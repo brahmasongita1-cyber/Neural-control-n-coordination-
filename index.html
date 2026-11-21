@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neural Control & Coordination - Full Practice Test</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-light: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-dark: #0284c7;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #eab308;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); line-height: 1.5; padding-bottom: 80px; }
+    header {
+      position: sticky; top: 0; z-index: 50; background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(8px); border-bottom: 1px solid var(--border);
+      padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    }
+    header h1 { font-size: 1rem; font-weight: 700; color: var(--accent); }
+    .meta-bar { display: flex; gap: 10px; align-items: center; font-size: 0.82rem; color: var(--muted); }
+    .btn {
+      background: var(--accent); color: #0f172a; border: none; padding: 8px 14px;
+      border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem;
+    }
+    .btn:hover { background: #7dd3fc; }
+    .btn-outline {
+      background: transparent; color: var(--text); border: 1px solid var(--border);
+      padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.82rem;
+    }
+    .btn-outline.active { background: var(--accent); color: #0f172a; border-color: var(--accent); font-weight: 700; }
+    .btn-danger { background: var(--red); color: white; }
+    .container { max-width: 820px; margin: 0 auto; padding: 14px; }
+    .section-tabs {
+      display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 12px;
+      scrollbar-width: thin;
+    }
+    .section-tabs button { white-space: nowrap; flex-shrink: 0; }
+    .q-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px; margin-bottom: 14px;
+    }
+    .q-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px; font-size: 0.78rem; color: var(--muted);
+    }
+    .badge {
+      background: var(--card-light); color: var(--accent); padding: 3px 8px;
+      border-radius: 6px; font-weight: 600;
+    }
+    .passage-box {
+      background: #0f172a; border-left: 3px solid var(--accent); padding: 10px 12px;
+      border-radius: 6px; font-size: 0.88rem; color: #cbd5e1; margin-bottom: 12px;
+      white-space: pre-line;
+    }
+    .q-text { font-size: 0.96rem; font-weight: 500; margin-bottom: 12px; white-space: pre-line; }
+    .img-wrap { margin: 10px 0 14px; text-align: center; }
+    .img-wrap img {
+      max-width: 100%; max-height: 320px; border-radius: 8px;
+      border: 1px solid var(--border); background: #fff; padding: 4px;
+    }
+    .img-missing {
+      border: 1px dashed var(--yellow); background: rgba(234, 179, 8, 0.08);
+      color: #fde047; padding: 10px; border-radius: 8px; font-size: 0.82rem;
+    }
+    .options { display: flex; flex-direction: column; gap: 8px; }
+    .opt {
+      display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px;
+      border-radius: 8px; border: 1px solid var(--border); background: rgba(15, 23, 42, 0.5);
+      cursor: pointer; transition: 0.15s; font-size: 0.92rem;
+    }
+    .opt:hover { border-color: var(--accent); }
+    .opt.selected { border-color: var(--accent); background: rgba(56, 189, 248, 0.15); }
+    .opt.correct { border-color: var(--green); background: rgba(34, 197, 94, 0.18); }
+    .opt.wrong { border-color: var(--red); background: rgba(239, 68, 68, 0.18); }
+    .opt-letter {
+      font-weight: 700; min-width: 24px; height: 24px; border-radius: 50%;
+      background: var(--card-light); display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; flex-shrink: 0;
+    }
+    .opt.selected .opt-letter { background: var(--accent); color: #0f172a; }
+    .opt.correct .opt-letter { background: var(--green); color: #0f172a; }
+    .opt.wrong .opt-letter { background: var(--red); color: #fff; }
+    .q-actions { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .status-tag { font-size: 0.8rem; font-weight: 700; }
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.96);
+      border-top: 1px solid var(--border); padding: 10px 16px;
+      display: flex; justify-content: space-between; align-items: center; z-index: 50;
+    }
+    .modal-bg {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      z-index: 100; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-bg.open { display: flex; }
+    .modal {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 20px;
+    }
+    .palette-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+      gap: 6px; margin-top: 12px;
+    }
+    .pal-btn {
+      padding: 7px 0; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--bg); color: var(--text); font-size: 0.8rem; cursor: pointer; font-weight: 600;
+    }
+    .pal-btn.ans { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+    .pal-btn.res-ok { background: var(--green); color: #0f172a; }
+    .pal-btn.res-no { background: var(--red); color: #fff; }
+    .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 14px 0; }
+    .stat-box { background: var(--bg); padding: 12px; border-radius: 10px; text-align: center; border: 1px solid var(--border); }
+    .stat-box h3 { font-size: 1.3rem; color: var(--accent); }
+    .stat-box p { font-size: 0.78rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Neural Control & Coordination</h1>
+    <div class="meta-bar">
+      <span>No Time Limit</span> • <span>+4 / -1 Marking</span> • <span id="progText">0 / 136 Answered</span>
+    </div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn-outline" onclick="openPalette()">Grid</button>
+    <button class="btn" id="submitBtn" onclick="submitTest()">Submit</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="section-tabs" id="sectionTabs"></div>
+  <div id="questionsContainer"></div>
+</div>
+
+<div class="bottom-bar">
+  <span style="font-size:0.84rem; color:var(--muted);" id="sectionInfo">Showing All Questions</span>
+  <div style="display:flex; gap:8px;">
+    <button class="btn-outline" onclick="window.scrollTo({top:0, behavior:'smooth'})">Top ↑</button>
+    <button class="btn" onclick="submitTest()">Finish & Score</button>
+  </div>
+</div>
+
+<!-- Palette Modal -->
+<div class="modal-bg" id="paletteModal" onclick="if(event.target===this) closePalette()">
+  <div class="modal">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h3>Question Navigator</h3>
+      <button class="btn-outline" onclick="closePalette()">✕</button>
+    </div>
+    <p style="font-size:0.8rem; color:var(--muted); margin-top:4px;">Tap a number to jump directly to that question.</p>
+    <div class="palette-grid" id="paletteGrid"></div>
+  </div>
+</div>
+
+<!-- Score Modal -->
+<div class="modal-bg" id="scoreModal" onclick="if(event.target===this) closeScore()">
+  <div class="modal">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h3>Test Scorecard</h3>
+      <button class="btn-outline" onclick="closeScore()">Review Answers</button>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-box"><h3 id="scTotal">0 / 544</h3><p>Total Score (+4 / -1)</p></div>
+      <div class="stat-box"><h3 id="scAcc">0%</h3><p>Accuracy</p></div>
+      <div class="stat-box"><h3 id="scCorrect" style="color:var(--green)">0</h3><p>Correct (+4)</p></div>
+      <div class="stat-box"><h3 id="scWrong" style="color:var(--red)">0</h3><p>Incorrect (-1)</p></div>
+      <div class="stat-box"><h3 id="scUnatt" style="color:var(--muted)">0</h3><p>Unattempted (0)</p></div>
+      <div class="stat-box"><h3 id="scTime">0m 0s</h3><p>Time Taken</p></div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <button class="btn" style="flex:1;" onclick="closeScore()">Review Solutions</button>
+      <button class="btn-outline" style="flex:1;" onclick="resetTest()">Reset Test</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const AR_DIRECTIONS = "Directions: In the following questions, a statement of assertion is followed by a statement of reason. Mark the correct choice as:\n(a) If both assertion and reason are true and reason is the correct explanation of assertion.\n(b) If both assertion and reason are true but reason is not the correct explanation of assertion.\n(c) If assertion is true but reason is false.\n(d) If assertion is false but reason is true.";
+
+const ST_DIRECTIONS = "Directions: In the following questions, read the given statements and select the correct option as:\n(a) Both statements I and II are correct.\n(b) Statement I is correct but statement II is incorrect.\n(c) Statement I is incorrect but statement II is correct.\n(d) Both statements I and II are incorrect.";
+
+const CASE_1_PASSAGE = "Refer to the given diagram of human brain (with parts labelled A, B, C, and D) and answer the following question.";
+const CASE_2_PASSAGE = "Read the given passage and answer the following question:\nHuman brain consists of three parts: forebrain, midbrain and hindbrain. Forebrain consists of parts X, Y and Z. X forms the major part of the brain and is divided into two hemispheres, that are connected by tract of nerve fibres called P. Part Z contains group of neurosecretory cells and also centres which control body temperature, urge for eating, etc.";
+
+const QUESTIONS = [
+  // ================= MCQs CORNER (1 - 80) =================
+  { sec: "MCQs Corner", num: 1, q: "Functional unit of nervous system is", opts: ["synapse", "dendrite", "axon", "neuron"], ans: 3 },
+  { sec: "MCQs Corner", num: 2, q: "In which animal, network of nerve cells is present but brain is absent?", opts: ["Pila", "Honeybee", "Cockroach", "Hydra"], ans: 3 },
+  { sec: "MCQs Corner", num: 3, q: "Read the given statements and select the incorrect one.", opts: ["In Hydra, neural organisation is composed of network of neurons.", "All vertebrates and invertebrates have well developed nervous system.", "Brain is present in insects.", "Both (a) and (b)"], ans: 1 },
+  { sec: "MCQs Corner", num: 4, q: "Which of the following statement is correct regarding the function of afferent and efferent nerve fibres?\n(i) The afferent fibres transmit impulses from tissues/organs to the CNS.\n(ii) The efferent fibres transmit impulses from tissues/organs to the CNS.\n(iii) The efferent fibres transmit regulatory impulses from the CNS to the concerned peripheral tissues/organs.\n(iv) The afferent fibres transmit regulatory impulses from the CNS to the concerned peripheral tissues/organs.", opts: ["Only (i) and (ii) are correct.", "Only (ii) and (iv) are correct.", "Only (iii) and (iv) are correct.", "Only (i) and (iii) are correct."], ans: 3 },
+  { sec: "MCQs Corner", num: 5, q: "The somatic neural system relays impulses from the CNS to ________ while the autonomic neural system transmits impulses from the CNS to ________ of the body.", opts: ["skeletal muscles, smooth muscles", "cardiac muscles, skeletal muscles", "smooth muscles, skeletal muscles", "cardiac muscles, smooth muscles"], ans: 0 },
+  { sec: "MCQs Corner", num: 6, q: "Visceral nervous system is the part of the", opts: ["somatic neural system", "peripheral nervous system", "central nervous system", "none of these."], ans: 1 },
+  { sec: "MCQs Corner", num: 7, q: "Afferent nerve fibre carries impulses from", opts: ["central nervous system to PNS", "tissues to central nervous system", "central nervous system to muscle", "central nervous system to tissues."], ans: 1 },
+  { sec: "MCQs Corner", num: 8, q: "Read the given statements and select the option which fills the blanks correctly.\nThe afferent nerve fibres transmit impulses from (i) to (ii). The efferent nerve fibres transmit impulses from (iii) to (iv).", opts: ["(i) tissues, (ii) PNS, (iii) CNS, (iv) organs", "(i) tissues, (ii) CNS, (iii) CNS, (iv) organs", "(i) organs, (ii) CNS, (iii) PNS, (iv) tissues", "(i) tissues, (ii) ANS, (iii) CNS, (iv) organs"], ans: 1 },
+  { sec: "MCQs Corner", num: 9, q: "Regulatory impulses are transmitted by", opts: ["afferent nerve fibres", "efferent nerve fibres", "somatic neural system", "autonomic neural system."], ans: 1 },
+  { sec: "MCQs Corner", num: 10, q: "Skeletal muscles are innervated by", opts: ["sympathetic nerves", "parasympathetic nerves", "somatic nerves", "autonomic nerves."], ans: 2 },
+  { sec: "MCQs Corner", num: 11, q: "Which of the following transmits impulses from CNS to the involuntary organs and smooth muscles of the body?", opts: ["Afferent nerve fibres", "Efferent nerve fibres", "Somatic neural system", "Autonomic neural system"], ans: 3 },
+  { sec: "MCQs Corner", num: 12, q: "Autonomous neural system controls involuntary actions. It includes", opts: ["swallowing of food", "pupillary reflex", "peristalsis of the intestine", "all of these."], ans: 3 },
+  { sec: "MCQs Corner", num: 13, q: "The flow chart given here shows functional organisation of the human neural system. Identify A to E and select the correct option.", img: "images/mcqs_q13.jpg", opts: ["A: PNS, B: CNS, C: ANS, D: Sympathetic neural system, E: Parasympathetic neural system", "A: ANS, B: CNS, C: PNS, D: Parasympathetic neural system, E: Sympathetic neural system", "A: CNS, B: PNS, C: ANS, D: Sympathetic neural system, E: Parasympathetic neural system", "A: ANS, B: PNS, C: CNS, D: Parasympathetic neural system, E: Sympathetic neural system"], ans: 2 },
+  { sec: "MCQs Corner", num: 14, q: "Which part of neural system transports impulse from CNS to viscera and vice-versa?", opts: ["ANS", "Somatic neural system", "CNS", "Visceral nervous system"], ans: 3 },
+  { sec: "MCQs Corner", num: 15, q: "Visceral nervous system comprises of", opts: ["nerve fibres", "ganglia", "plexuses", "all of these."], ans: 3 },
+  { sec: "MCQs Corner", num: 16, q: "In a neuron, Nissl's granules are present in", opts: ["cell body", "axon", "dendrites", "both (a) and (c)."], ans: 3 },
+  { sec: "MCQs Corner", num: 17, q: "Which of the following is common for both cell body and dendrites?", opts: ["ATP", "Axon", "Nissl's granules", "Myelin sheath"], ans: 2 },
+  { sec: "MCQs Corner", num: 18, q: "Which of the following have myelinated nerve fibres?", opts: ["Spinal nerves", "Somatic nerves", "Cranial nerves", "Both (a) and (c)"], ans: 3 },
+  { sec: "MCQs Corner", num: 19, q: "Which part of neuron terminates into a bulb-like structure?", opts: ["Synaptic knob", "Cell body", "Dendrites", "Axon"], ans: 3 },
+  { sec: "MCQs Corner", num: 20, q: "Which of the following contains neurotransmitters?", opts: ["Axon", "Dendrites", "Cell body", "Synaptic vesicles"], ans: 3 },
+  { sec: "MCQs Corner", num: 21, q: "Multipolar neurons are present in", opts: ["cerebral cortex", "retina of eye", "embryonic stage", "both (a) and (b)."], ans: 0 },
+  { sec: "MCQs Corner", num: 22, q: "Neuron in which cell body has one axon and one dendrite is called", opts: ["unipolar", "bipolar", "apolar", "multipolar."], ans: 1 },
+  { sec: "MCQs Corner", num: 23, q: "Type of neuron present in embryonic stage is", opts: ["multipolar", "apolar", "bipolar", "unipolar."], ans: 3 },
+  { sec: "MCQs Corner", num: 24, q: "Myelinated nerve fibres are enveloped by", opts: ["Ranvier cells", "muscle cells", "Schwann cells", "axon."], ans: 2 },
+  { sec: "MCQs Corner", num: 25, q: "Node of Ranvier is a gap that occurs between two", opts: ["axon", "cell body", "myelin sheaths", "dendrites."], ans: 2 },
+  { sec: "MCQs Corner", num: 26, q: "Afferent nerve fibres are ________ whereas efferent nerve fibres are ________ respectively.", opts: ["unmyelinated, myelinated", "myelinated, unmyelinated", "unmyelinated, unmyelinated", "myelinated, myelinated"], ans: 2 },
+  { sec: "MCQs Corner", num: 27, q: "Unmyelinated nerve fibres are found in", opts: ["autonomous neural system", "somatic neural system", "central neural system", "both (a) and (b)."], ans: 3 },
+  { sec: "MCQs Corner", num: 28, q: "When a neuron is at resting stage, the axonal membrane is comparatively", opts: ["more permeable to potassium ions (K⁺) and nearly impermeable to sodium ions (Na⁺)", "more permeable to sodium ions (Na⁺) and nearly impermeable to potassium ions (K⁺)", "impermeable to both potassium ions (K⁺) and sodium ions (Na⁺)", "impermeable to potassium ions (K⁺) only."], ans: 0 },
+  { sec: "MCQs Corner", num: 29, q: "The ionic gradients across the resting axonal membrane are maintained by the active transport of ions by the sodium-potassium pump which transports", opts: ["3 Na⁺ outwards for 2 K⁺ into the cell", "2 Na⁺ outwards for 3 K⁺ into the cell", "2 K⁺ outwards for 3 Na⁺ into the cell", "3 K⁺ outwards for 2 Na⁺ into the cell."], ans: 0 },
+  { sec: "MCQs Corner", num: 30, q: "During the propagation of a nerve impulse, action potential results from the movement of", opts: ["K⁺ ions from intracellular fluid to extracellular fluid", "Na⁺ ions from extracellular fluid to intracellular fluid", "K⁺ ions from extracellular fluid to extracellular fluid", "Na⁺ ions from intracellular fluid to extracellular fluid."], ans: 1 },
+  { sec: "MCQs Corner", num: 31, q: "A nerve fibre during resting stage is", opts: ["more permeable to Na⁺", "more permeable to K⁺", "equally permeable for Na⁺ and K⁺", "less permeable to K⁺."], ans: 1 },
+  { sec: "MCQs Corner", num: 32, q: "In the resting state of the neural membrane, diffusion due to concentration gradients, if allowed, would drive", opts: ["Ca²⁺ into the cell", "K⁺ and Na⁺ out of the cell", "Na⁺ into the cell", "Na⁺ out of the cell."], ans: 2 },
+  { sec: "MCQs Corner", num: 33, q: "Sodium-potassium pump in resting stage transports", opts: ["Na⁺ and K⁺ out of the neuron", "Na⁺ and K⁺ into the neuron", "Na⁺ into the neuron and K⁺ out of the neuron", "K⁺ into the neuron and Na⁺ out of the neuron."], ans: 3 },
+  { sec: "MCQs Corner", num: 34, q: "Which of the following statements are correct regarding Na⁺ - K⁺ pump?\n(i) Needs energy (ATP) to work\n(ii) Expels 3 Na⁺ for every imported 2 K⁺ ions\n(iii) Works against a concentration gradient\n(iv) Maintains resting potential", opts: ["(i) and (iv)", "(ii) and (iii)", "(i) and (iii)", "All of these"], ans: 3 },
+  { sec: "MCQs Corner", num: 35, q: "Which of the following options illustrates the distribution of Na⁺ and K⁺ ions in a section of non-myelinated axon which is at resting potential?", img: "images/mcqs_q35.jpg", opts: ["(a) Na⁺ high outside, K⁺ high inside (outer +, inner -)", "(b) Na⁺ high outside, K⁺ low inside (outer +, inner -)", "(c) Na⁺ low outside, K⁺ high inside (outer -, inner +)", "(d) Na⁺ low outside, K⁺ low inside (outer -, inner +)"], ans: 0 },
+  { sec: "MCQs Corner", num: 36, q: "Read the given paragraph:\nIn the resting state, the axonal membrane is (i) with more (ii) charged ions outside than inside. This unequal distribution of ions is due to the selective permeability of the membrane, which forms an almost impenetrable barrier to (iii) and the action of the (iv), which pumps (v) Na⁺ out of the neuron for every (vi) K⁺ brought in.\nSelect the option that correctly fills the blanks in the paragraph.", opts: ["(i) depolarised, (ii) positively, (iii) Na⁺, (iv) sodium-potassium pump, (v) three, (vi) two", "(i) depolarised, (ii) negatively, (iii) Na⁺, (iv) sodium-potassium pump, (v) three, (vi) two", "(i) polarised, (ii) negatively, (iii) Na⁺, (iv) sodium-potassium pump, (v) three, (vi) two", "(i) polarised, (ii) negatively, (iii) Na⁺, (iv) sodium-potassium pump, (v) two, (vi) three", "(i) polarised, (ii) positively, (iii) Na⁺, (iv) sodium-potassium pump, (v) three, (vi) two"], ans: 3 },
+  { sec: "MCQs Corner", num: 37, q: "The electrical potential difference between outside and inside of a nerve axon before excitation is known as", opts: ["resting potential", "action potential", "spike potential", "reaction potential."], ans: 0 },
+  { sec: "MCQs Corner", num: 38, q: "During the transmission of nerve impulse through a nerve fibre, the potential on the inner side of the plasma membrane has which type of electric charge?", opts: ["First positive, then negative and continue to be negative", "First negative, then positive and continue to be positive", "First positive, then negative and again back to positive", "First negative, then positive and again back to negative"], ans: 3 },
+  { sec: "MCQs Corner", num: 39, q: "Depolarisation of axolemma during nerve conduction takes place because", opts: ["equal amount of Na⁺ and K⁺ move out across axolemma", "only Na⁺ move inside", "more Na⁺ moves outside than K⁺ moving outside", "none of these."], ans: 1 },
+  { sec: "MCQs Corner", num: 40, q: "During depolarisation, the outer surface of the membrane becomes", opts: ["negatively charged", "positively charged", "neutral", "none of these."], ans: 0 },
+  { sec: "MCQs Corner", num: 41, q: "Complete the following paragraph by selecting the option that gives correct sequence of words:\nWhen a stimulus is applied at a site on the polarised membrane, the membrane at that site becomes freely permeable to (i) ions. It causes rapid influx of (ii) ions leading to (iii) of the membrane.", opts: ["(i) Na⁺, (ii) K⁺, (iii) polarisation", "(i) K⁺, (ii) Na⁺, (iii) depolarisation", "(i) K⁺, (ii) Na⁺, (iii) polarisation", "(i) Na⁺, (ii) Na⁺, (iii) depolarisation"], ans: 3 },
+  { sec: "MCQs Corner", num: 42, q: "The junction between the axon of one neuron and the dendrite of the next is called", opts: ["constant bridge", "junction point", "joint", "synapse."], ans: 3 },
+  { sec: "MCQs Corner", num: 43, q: "Read the given statements and select the correct ones.\n(i) Autonomic neural system transmits impulses from the CNS to the voluntary organs and striated muscles of the body.\n(ii) Unmyelinated nerve fibres do not have Schwann cells which form the myelin sheath.\n(iii) Axonal membrane of a neuron when not conducting any impulse is comparatively more permeable to potassium ions (K⁺) than to sodium ions (Na⁺).\n(iv) A synapse is formed by the membranes of a pre-synaptic neuron and a post-synaptic neuron.", opts: ["(i) and (ii)", "(ii) and (iii)", "(iii) and (iv)", "(i) and (iv)"], ans: 2 },
+  { sec: "MCQs Corner", num: 44, q: "Which of the following statements is/are incorrect about the electrical synapse?\n(i) At electrical synapses, the membranes of pre- and post-synaptic neurons are in very close proximity.\n(ii) Electrical current can flow directly from one neuron into the other across the synapses.\n(iii) Transmission of an impulse across electrical synapses is very similar to impulse conduction along single axon.\n(iv) Electrical synapses pass electrical signal between cells with the use of neurotransmitter.\n(v) Electrical synapses are faster than chemical synapse.\n(vi) Electrical synapses are rare in our system.", opts: ["(ii), (iv) and (v)", "(i) and (ii)", "(iv) only", "(i), (v) and (vi)"], ans: 2 },
+  { sec: "MCQs Corner", num: 45, q: "Read the given statements and select the correct option.\n(i) Synaptic cleft of neurons secretes neurotransmitter.\n(ii) Myelinated nerve fibres are enveloped with Schwann cells, which form a myelin sheath around the axon.", opts: ["Statements (i) and (ii) are correct but statements (iii) and (iv) are incorrect.", "Statements (i), (ii) and (iii) are correct but statement (iv) is incorrect.", "Statements (iii) and (iv) are correct but statements (i) and (ii) are incorrect.", "Statements (ii) and (iii) are correct but statements (i) and (iv) are incorrect."], ans: 3 },
+  { sec: "MCQs Corner", num: 46, q: "Which of the following is correct about electrical synapses?", opts: ["At electrical synapses, the membranes of pre- and post-synaptic neurons are far away.", "Transmission of an impulse across electrical synapses is not similar to impulse conduction along a single axon.", "Electrical synapses are rare in our system.", "Impulse transmission across an electrical synapse is always slower than that across a chemical synapse."], ans: 2 },
+  { sec: "MCQs Corner", num: 47, q: "A list of events occurring in the transmission of nerve impulse across the synapse is given below in a random order:\n(i) Opening of specific ion channels allows the entry of ions, a new action potential is generated in the post-synaptic neuron.\n(ii) Neurotransmitter binds to the receptor on post synaptic membrane.\n(iii) Synaptic vesicle fuses with pre-synaptic membrane, neurotransmitter release into synaptic cleft.\n(iv) Depolarisation of pre-synaptic membrane.\n(v) Arrival of action potential at axon terminal.\nWhich of the following options represents these events in a correct order?", opts: ["(v) → (iv) → (iii) → (ii) → (i)", "(i) → (ii) → (iii) → (iv) → (v)", "(i) → (ii) → (iv) → (iii) → (v)", "(v) → (iv) → (iii) → (i) → (ii)"], ans: 0 },
+  { sec: "MCQs Corner", num: 48, q: "Unidirectional transmission of a nerve impulse through nerve fibre is due to the fact that", opts: ["nerve fibre is covered by a myelin sheath", "sodium pump starts operating only at the cyton and then continues into the nerve fibre", "neurotransmitters are released by dendrites and not by axon endings", "neurotransmitters are released by the axon endings and not by dendrites."], ans: 3 },
+  { sec: "MCQs Corner", num: 49, q: "The cranial meninx which in contact with the brain tissue is", opts: ["dura mater", "arachnoid", "pia mater", "none of these."], ans: 2 },
+  { sec: "MCQs Corner", num: 50, q: "The correct sequence of meninges from inner to outer side is", opts: ["dura mater → arachnoid membrane → pia mater", "dura mater → pia mater → arachnoid membrane", "pia mater → arachnoid membrane → dura mater", "arachnoid membrane → dura mater → pia mater."], ans: 2 },
+  { sec: "MCQs Corner", num: 51, q: "The layer of cells which covers the cerebral hemisphere and is thrown into prominent folds is", opts: ["dura mater", "arachnoid", "pia mater", "cerebral cortex."], ans: 3 },
+  { sec: "MCQs Corner", num: 52, q: "Which of the following forms the major part of the human brain?", opts: ["Corpus callosum", "Medulla", "Pons", "Cerebrum"], ans: 3 },
+  { sec: "MCQs Corner", num: 53, q: "Corpus callosum connects two", opts: ["cerebral hemispheres", "ventricles of brain", "cerebellar hemispheres", "optic thalamus."], ans: 0 },
+  { sec: "MCQs Corner", num: 54, q: "Grey matter which covers the cerebral hemisphere is called", opts: ["corpus callosum", "cerebral cortex", "cerebral medulla", "cerebral tract."], ans: 1 },
+  { sec: "MCQs Corner", num: 55, q: "The grey colour of the cerebral cortex is due to concentration of", opts: ["neural dendrites", "neural axon", "neuron cell bodies", "all of these."], ans: 2 },
+  { sec: "MCQs Corner", num: 56, q: "The association areas are responsible for", opts: ["intersensory association", "communication", "memory", "all of these."], ans: 3 },
+  { sec: "MCQs Corner", num: 57, q: "Which part of the human brain controls the urge for eating and drinking?", opts: ["Forebrain", "Midbrain", "Hindbrain", "Spinal cord"], ans: 0 },
+  { sec: "MCQs Corner", num: 58, q: "Human body temperature is maintained by", opts: ["hypothalamus", "medulla oblongata", "pituitary", "cerebral cortex."], ans: 0 },
+  { sec: "MCQs Corner", num: 59, q: "Secretion of intestinal juice in mammals is under the control of", opts: ["medulla oblongata", "mesencephalon", "hypothalamus", "cerebellum."], ans: 0 },
+  { sec: "MCQs Corner", num: 60, q: "Neurosecretory cells are present in", opts: ["cerebral hemisphere", "hypothalamus", "cerebellum", "medulla oblongata."], ans: 1 },
+  { sec: "MCQs Corner", num: 61, q: "Amygdala and hippocampus are the parts of", opts: ["forebrain", "midbrain", "hindbrain", "spinal cord."], ans: 0 },
+  { sec: "MCQs Corner", num: 62, q: "Alongwith the hypothalamus, limbic system is involved in\n(i) Motivation\n(ii) Expression of emotional reactions (excitement, pleasure, rage and fear)\n(iii) Sexual behaviour\n(iv) Cardiovascular reflexes", opts: ["(i) and (ii) only", "(i) and (iv) only", "(i), (ii) and (iii) only", "(i), (ii), (iii) and (iv)"], ans: 2 },
+  { sec: "MCQs Corner", num: 63, q: "Cerebral aqueduct passes through", opts: ["forebrain", "midbrain", "hindbrain", "spinal cord."], ans: 1 },
+  { sec: "MCQs Corner", num: 64, q: "The canal that passes through the midbrain is", opts: ["corpus callosum", "hypothalamus", "cerebral aqueduct", "corpora quadrigemina."], ans: 2 },
+  { sec: "MCQs Corner", num: 65, q: "Which of the following is a part of human brain?", opts: ["Corpora allata", "Corpora adiposa", "Corpora cardiaca", "Corpora quadrigemina"], ans: 3 },
+  { sec: "MCQs Corner", num: 66, q: "'Medulla' connects the", opts: ["two cerebral hemispheres", "forebrain and midbrain", "cerebrum and cerebellum", "spinal cord with brain."], ans: 3 },
+  { sec: "MCQs Corner", num: 67, q: "Read the following statements and find out the incorrect statement.\n(i) The ventral portion of the midbrain consists mainly of four round swellings (lobes) called corpora quadrigemina.\n(ii) Midbrain and pons and medulla form the brain stem.\n(iii) Cerebellum consists of fibre tracts that interconnect different regions of brain.\n(iv) The cerebellum wraps around a structure called thalamus.\n(v) Medulla is the centre for body temperature, urge for eating and drinking.", opts: ["(i), (iii) and (iv) only", "(ii) and (v) only", "(i) and (iii) only", "(i), (iii), (iv) and (v)"], ans: 3 },
+  { sec: "MCQs Corner", num: 68, q: "The respiratory and cardiac centres are located in", opts: ["cerebrum", "diencephalon", "crura cerebri", "medulla oblongata."], ans: 3 },
+  { sec: "MCQs Corner", num: 69, q: "All the given parts make up the brainstem, except", opts: ["midbrain", "pons", "cerebellum", "medulla oblongata."], ans: 2 },
+  { sec: "MCQs Corner", num: 70, q: "Select the mismatched pair.", opts: ["Arachnoid — Middle layer", "Piamater — Inner layer", "Cerebrum — Hindbrain", "Hypothalamus — Forebrain"], ans: 2 },
+  { sec: "MCQs Corner", num: 71, q: "Consider the following statements regarding cerebral cortex and choose the correct option.\n(i) The neuron cell bodies are concentrated in cerebral cortex giving it white colour.\n(ii) The cerebral cortex is referred to as the grey matter.\n(iii) The cerebral cortex contains motor areas, sensory areas and association area.\n(iv) The cerebral cortex also contains large regions that are neither clearly sensory nor motor. These are called corpus callosum.", opts: ["Only (i) and (ii) are correct.", "Only (ii) and (iii) are correct.", "Only (iii) and (iv) are correct.", "Only (i) and (iv) are correct."], ans: 1 },
+  { sec: "MCQs Corner", num: 72, q: "Association areas present in cerebral cortex are responsible for", opts: ["intersensory associations", "regulation of body temperature", "motivation", "all of these."], ans: 0 },
+  { sec: "MCQs Corner", num: 73, q: "The inner parts of cerebral hemispheres and a group of associated deep structures like amygdala, hippocampus, etc., form a complex structure called the", opts: ["thalamus", "hypothalamus", "limbic system", "association areas."], ans: 2 },
+  { sec: "MCQs Corner", num: 74, q: "If hypothalamus part of the brain gets injured then which of the following activities is/are likely to be disturbed?", opts: ["Regulation of body temperature", "Urge for eating and drinking", "Regulation of sexual behavior", "All of these"], ans: 3 },
+  { sec: "MCQs Corner", num: 75, q: "Along with the hypothalamus, limbic system is involved in the,", opts: ["regulation of sexual behaviour", "expression of emotional reactions", "motivation", "all of these"], ans: 3 },
+  { sec: "MCQs Corner", num: 76, q: "The dorsal portion of the midbrain consists mainly of four round lobes called", opts: ["corpora quadrigemina", "cerebral aqueduct", "corpus callosum", "cerebral cortex."], ans: 0 },
+  { sec: "MCQs Corner", num: 77, q: "The medulla contains centres which control", opts: ["respiration", "cardiovascular reflexes", "gastric secretions", "all of these."], ans: 3 },
+  { sec: "MCQs Corner", num: 78, q: "Three major regions that make up the brain stem are", opts: ["mid brain, pons and medulla oblongata", "pons, cerebellum and spinal cord", "mid brain, pons and cerebellum", "mid brain and pons only."], ans: 0 },
+  { sec: "MCQs Corner", num: 79, q: "________ forms the connection between brain and spinal cord.", opts: ["Corpus callosum", "Corpora quadrigemina", "Brain stem", "Cerebral aqueduct"], ans: 2 },
+  { sec: "MCQs Corner", num: 80, q: "Which part of the brain possess highly convoluted surface?", opts: ["Pons", "Medulla", "Cerebellum", "Mid brain"], ans: 2 },
+
+  // ================= NCERT EXEMPLAR PROBLEMS (1 - 5) =================
+  { sec: "NCERT Exemplar", num: 1, q: "Chemicals which are released at the synaptic junction are called", opts: ["hormones", "neurotransmitters", "cerebrospinal fluid", "lymph."], ans: 1 },
+  { sec: "NCERT Exemplar", num: 2, q: "Potential difference across resting membrane is negatively charged. This is due to differential distribution of the following ions.", opts: ["Na⁺ and K⁺ ions", "CO₃²⁻ and Cl⁻ ions", "Ca²⁺ and Mg²⁺ ions", "Ca⁺⁴ and Cl⁻ ions"], ans: 0 },
+  { sec: "NCERT Exemplar", num: 3, q: "Resting membrane potential is maintained by", opts: ["hormones", "neurotransmitters", "ion pumps", "none of the above."], ans: 2 },
+  { sec: "NCERT Exemplar", num: 4, q: "The function of our visceral organs is controlled by", opts: ["sympathetic and somatic neural system", "sympathetic and parasympathetic neural system", "central and somatic neural system", "none of the above."], ans: 1 },
+  { sec: "NCERT Exemplar", num: 5, q: "An area in the brain which is associated with strong emotions is", opts: ["cerebral cortex", "cerebellum", "limbic system", "medulla."], ans: 2 },
+
+  // ================= ASSERTION & REASON (1 - 10) =================
+  { sec: "Assertion & Reason", num: 1, passage: AR_DIRECTIONS, q: "Assertion: The PNS comprises of all the nerves of the body associated with CNS.\nReason: PNS is the site of information processing and control.", opts: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "A is false but R is true."], ans: 2 },
+  { sec: "Assertion & Reason", num: 2, passage: AR_DIRECTIONS, q: "Assertion: Visceral nervous system is a part of PNS.\nReason: Visceral nervous system transmit impulse from CNS to internal organs and vice versa.", opts: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "A is false but R is true."], ans: 1 },
+  { sec: "Assertion & Reason", num: 3, passage: AR_DIRECTIONS, q: "Assertion: Multipolar neurons have two or more axons and one dendrite.\nReason: Multipolar neurons are found usually in the cerebral cortex.", opts: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "A is false but R is true."], ans: 3 },
+  { sec: "Assertion & Reason", num: 4, passage: AR_DIRECTIONS, q: "Assertion: Myelinated nerve fibres are present in spinal and cranial nerves.\nReason: Myelinated nerves are enveloped with myelin sheath.", opts: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "A is false but R is true."], ans: 1 },
+  { sec: "Assertion & Reason", num: 5, passage: AR_DIRECTIONS, q: "Assertion: The resting membrane of the neuron exhibits polarity of charges.\nReason: The outer surface of the axonal membrane possesses a negative charge while its inner surface becomes positively charged.", opts: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "A is false but R is true."], ans: 2 },
+  { sec: "Assertion & Reason", num: 6, passage: AR_DIRECTIONS, q: "Assertion: Nerve impulse is generated in the depolarised state of neuron.\nReason: The electric potential difference generated across the plasma membrane of a neuron is called action potential.", opts: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "A is false but R is true."], ans: 1 },
+  { sec: "Assertion & Reason", num: 7, passage: AR_DIRECTIONS, q: "Assertion: Electrical synapses are rare in our system.\nReason: Impulse transmission across an electrical synapse is slower than that across a chemical synapse.", opts: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "A is false but R is true."], ans: 2 },
+  { sec: "Assertion & Reason", num: 8, passage: AR_DIRECTIONS, q: "Assertion: Arachnoid forms the outer layer of the cranial meninges.\nReason: Pia mater remain in contact with the tissue of the brain.", opts: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "A is false but R is true."], ans: 3 },
+  { sec: "Assertion & Reason", num: 9, passage: AR_DIRECTIONS, q: "Assertion: Association areas are neither clearly sensory nor motor in function.\nReason: Association areas are responsible for complex functions like intersensory associations, memory and communication.", opts: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "A is false but R is true."], ans: 1 },
+  { sec: "Assertion & Reason", num: 10, passage: AR_DIRECTIONS, q: "Assertion: Medulla contains centres which control respiration, cardiovascular reflexes and gastric secretions.\nReason: Medulla contains several neurosecretory cells which secrete hormones.", opts: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "A is false but R is true."], ans: 2 },
+
+  // ================= STATEMENT BASED QUESTIONS (1 - 5) =================
+  { sec: "Statement Based", num: 1, passage: ST_DIRECTIONS, q: "Statement I: The CNS is the site of information processing and control.\nStatement II: The somatic neural system relays impulses from the CNS to the involuntary organs and smooth muscles of the body.", opts: ["Both statements I and II are correct.", "Statement I is correct but statement II is incorrect.", "Statement I is incorrect but statement II is correct.", "Both statements I and II are incorrect."], ans: 1 },
+  { sec: "Statement Based", num: 2, passage: ST_DIRECTIONS, q: "Statement I: Somatic nerve fibres are not enclosed by a Schwann cell.\nStatement II: Peripheral nerve fibres are not enclosed by myelin sheath.", opts: ["Both statements I and II are correct.", "Statement I is correct but statement II is incorrect.", "Statement I is incorrect but statement II is correct.", "Both statements I and II are incorrect."], ans: 2 },
+  { sec: "Statement Based", num: 3, passage: ST_DIRECTIONS, q: "Statement I: Ionic gradients across the resting membrane are maintained by the passive transport of ions by the sodium-potassium pump.\nStatement II: Sodium-potassium pump transports 2 Na⁺ outwards for 3 K⁺ into the cell across the resting membrane.", opts: ["Both statements I and II are correct.", "Statement I is correct but statement II is incorrect.", "Statement I is incorrect but statement II is correct.", "Both statements I and II are incorrect."], ans: 3 },
+  { sec: "Statement Based", num: 4, passage: ST_DIRECTIONS, q: "Statement I: Unmyelinated nerve fibre is enclosed by a Schwann cell that does not form a myelin sheath around the axon.\nStatement II: Unmyelinated nerve fibres are commonly found in autonomous and the somatic neural systems.", opts: ["Both statements I and II are correct.", "Statement I is correct but statement II is incorrect.", "Statement I is incorrect but statement II is correct.", "Both statements I and II are incorrect."], ans: 0 },
+  { sec: "Statement Based", num: 5, passage: ST_DIRECTIONS, q: "Statement I: Transmission of an impulse across electrical synapses is very similar to impulse conduction along a single axon.\nStatement II: Impulse transmission across an electrical synapse is always slower than that across a chemical synapse.", opts: ["Both statements I and II are correct.", "Statement I is correct but statement II is incorrect.", "Statement I is incorrect but statement II is correct.", "Both statements I and II are incorrect."], ans: 1 },
+
+  // ================= MATCHING TYPE QUESTIONS (1 - 5) =================
+  { sec: "Matching Type", num: 1, q: "Match column I with column II and choose the correct option.\nColumn I:\nA. Afferent fibres\nB. Efferent fibres\nC. Somatic neural system\nD. Autonomic neural system\n\nColumn II:\n1. Relays impulses from the CNS to skeletal muscles\n2. Transmits impulses from the CNS to smooth muscles\n3. Transmit impulses from tissues/organs to the CNS\n4. Transmit regulatory impulses from the CNS to tissues/organs", opts: ["A-2, B-1, C-4, D-3", "A-1, B-2, C-3, D-4", "A-4, B-3, C-2, D-1", "A-3, B-4, C-1, D-2"], ans: 3 },
+  { sec: "Matching Type", num: 2, q: "Match column I with column II and choose the correct option.\nColumn I:\nA. Unipolar neuron\nB. Bipolar neuron\nC. Multipolar neuron\n\nColumn II:\n1. Retina of eye\n2. Embryonic stage\n3. Cerebral cortex", opts: ["A-1, B-2, C-3", "A-3, B-1, C-2", "A-2, B-1, C-3", "A-2, B-3, C-1"], ans: 2 },
+  { sec: "Matching Type", num: 3, q: "Match column I with column II and choose the correct option.\nColumn I:\nA. Medulla\nB. Association areas\nC. Limbic system\nD. Corpora quadrigemina\n\nColumn II:\n1. Olfaction\n2. Memory\n3. Midbrain\n4. Gastric secretions", opts: ["A-1, B-3, C-4, D-2", "A-4, B-2, C-1, D-3", "A-2, B-1, C-3, D-4", "A-3, B-4, C-2, D-1"], ans: 1 },
+  { sec: "Matching Type", num: 4, q: "Match items in column I with those in column II.\nColumn I:\nA. CNS\nB. PNS\n\nColumn II:\n1. Afferent fibres\n2. Spinal cord\n3. Cerebrum\n4. Thalamus\n5. Visceral nervous system\n6. Somatic nervous system", opts: ["A - 2, 3, 4; B - 1, 5, 6", "A - 1, 2, 6; B - 3, 4, 5", "A - 3, 4, 5, 6; B - 1, 2", "A - 1, 4, 6; B - 2, 3, 5"], ans: 0 },
+  { sec: "Matching Type", num: 5, q: "Match column I with column II and choose the correct option.\nColumn I:\nA. Somatic neural system\nB. Autonomic neural system\nC. Central neural system\nD. Visceral neural system\n\nColumn II:\n(i) Site of information processing and control\n(ii) Relays impulses from the CNS to skeletal muscles\n(iii) Transmits impulses from the CNS to the involuntary organs\n(iv) Transmits impulses from the CNS to the viscera and from the viscera to the CNS", opts: ["A-(iv), B-(iii), C-(ii), D-(i)", "A-(ii), B-(iii), C-(i), D-(iv)", "A-(iv), B-(iii), C-(i), D-(ii)", "A-(i), B-(ii), C-(iii), D-(iv)"], ans: 1 },
+
+  // ================= CASE BASED QUESTIONS (1 - 8) =================
+  { sec: "Case Based", num: 1, passage: CASE_1_PASSAGE, img: "images/case_brain.jpg", q: "1. Which labelled part controls the process of respiration?", opts: ["A", "B", "C", "D"], ans: 2 },
+  { sec: "Case Based", num: 2, passage: CASE_1_PASSAGE, img: "images/case_brain.jpg", q: "2. What does label 'D' represent?", opts: ["Cerebral aqueduct", "Corpora quadrigemina", "Corpus callosum", "Thalamus"], ans: 2 },
+  { sec: "Case Based", num: 3, passage: CASE_1_PASSAGE, img: "images/case_brain.jpg", q: "3. Which part is associated with memory and communication?", opts: ["A", "B", "C", "D"], ans: 1 },
+  { sec: "Case Based", num: 4, passage: CASE_1_PASSAGE, img: "images/case_brain.jpg", q: "4. Which of the following functions is performed by the part labelled 'C' in the given figure?", opts: ["Regulation of body temperature", "Regulation of gastric secretions", "Learning", "Maintaining posture"], ans: 1 },
+  { sec: "Case Based", num: 5, passage: CASE_2_PASSAGE, q: "5. Identify the part P.", opts: ["Cerebral aqueduct", "Corpora quadrigemina", "Corpus callosum", "Association area"], ans: 2 },
+  { sec: "Case Based", num: 6, passage: CASE_2_PASSAGE, q: "6. Read the given statements and select the correct option.\nStatement I: Outer layer of part X is called grey matter.\nStatement II: Myelin sheath gives greyish colour to cerebral cortex.", opts: ["Both statement I and statement II are correct.", "Both statement I and statement II are incorrect.", "Statement I is correct but statement II is incorrect.", "Statement I is incorrect but statement II is correct."], ans: 2 },
+  { sec: "Case Based", num: 7, passage: CASE_2_PASSAGE, q: "7. Identify the parts Y and Z.", opts: ["Y: Cerebrum, Z: Hypothalamus", "Y: Hypothalamus, Z: Cerebellum", "Y: Thalamus, Z: Hypothalamus", "Y: Hypothalamus, Z: Cerebrum"], ans: 2 },
+  { sec: "Case Based", num: 8, passage: CASE_2_PASSAGE, q: "8. Limbic system alongwith part ________ is involved in regulation of sexual behaviour.", opts: ["X", "Y", "Z", "P"], ans: 2 },
+
+  // ================= FIGURE BASED QUESTIONS (1 - 5) =================
+  { sec: "Figure Based", num: 1, q: "In the accompanying diagram of a part of the human body, the structures belonging to the central neural system are labelled as", img: "images/fig_q1.jpg", opts: ["A and C", "B and C", "A and D", "C and D."], ans: 2 },
+  { sec: "Figure Based", num: 2, q: "The given figure shows the structure of a neuron. Select the option that correctly identifies the parts labelled as A to E.", img: "images/fig_q2.jpg", opts: ["A: Nerve fibres, B: Cyton, C: Schwann cell, D: Node of Ranvier, E: Synaptic knob", "A: Dendrites, B: Cyton, C: Schwann cell, D: Node of Ranvier, E: Synaptic knob", "A: Dendrites, B: Nerve cell, C: Schwann cell, D: Synaptic knob, E: Node of Ranvier", "A: Axons, B: Cyton, C: Nerve cell, D: Node of Ranvier, E: Synaptic knob"], ans: 1 },
+  { sec: "Figure Based", num: 3, q: "The given diagram shows axon terminal and synapse. Here A, B, C, D and E respectively represent", img: "images/fig_q3.jpg", opts: ["axon terminal, synaptic cleft, synaptic vesicle, neurotransmitters and receptors", "axon terminal, synaptic vesicle, synaptic cleft, receptors and neurotransmitters", "synaptic cleft, synaptic vesicle, axon terminal, neurotransmitters and receptors", "synaptic cleft, axon terminal, synaptic vesicle, neurotransmitters and receptors."], ans: 1 },
+  { sec: "Figure Based", num: 4, q: "The given diagram shows axon terminal. Select the option that correctly matches the steps in transmission of impulses (list i - vii) with the labellings (A - C) in diagram.\n(i) Chemicals called neurotransmitters are released in the synaptic cleft through ion channels.\n(ii) When an impulse arrives at the axon terminal, it stimulates the movement of synaptic vesicles.\n(iii) Neurotransmitters are endocytosed into the neurons.\n(iv) The ion channels close with the binding of neurotransmitters to their specific receptors vesicles.\n(v) Synaptic vesicles move towards the membrane where they fuse with the plasma membrane.\n(vi) Neurotransmitters are released in the synaptic cleft.\n(vii) The released transmitters bind to their specific receptors on post-synaptic membrane.", img: "images/fig_q4.jpg", opts: ["A: (ii), B: (iii), C: (i)", "A: (v), B: (vi), C: (iv)", "A: (ii), B: (vi), C: (vii)", "A: (v), B: (iii), C: (iv)"], ans: 2 },
+  { sec: "Figure Based", num: 5, q: "The given figure shows sagittal section of the human brain. Identify the parts labelled as A to D and select the correct option.", img: "images/fig_q5.jpg", opts: ["A: Thalamus, B: Corpus callosum, C: Cerebellum, D: Medulla oblongata", "A: Frontal lobe, B: Thalamus, C: Cerebrum, D: Medulla oblongata", "A: Temporal lobe, B: Pons, C: Cerebrum, D: Medulla oblongata", "A: Cerebrum, B: Corpus callosum, C: Cerebellum, D: Medulla oblongata"], ans: 3 },
+
+  // ================= MULTIDIMENSIONAL QUESTIONS (1 - 6) =================
+  { sec: "Multidimensional", num: 1, q: "Identify X and what is the function of label X in the given diagram?", img: "images/multi_q1.jpg", opts: ["Node of Ranvier - It speeds up the impulse transmission.", "Cell body - It provides electrical insulation.", "Nissl's granules - It conducts impulse towards the nerve cell body.", "Axon - It is the functional unit of nerve."], ans: 0 },
+  { sec: "Multidimensional", num: 2, q: "Following are the statements about the transmission of nerve impulse. Find the correct statements.\nA. Transmission from one point to neighboring point is due to local currents in same direction inside and outside.\nB. Transmission through synapse may be electrical but it is rare.\nC. Electrical transmission through synapse is faster than chemical transmission.\nD. Chemical transmission through synapse occurs by exchange of ions.", opts: ["B and C are correct.", "A and C are correct.", "B and D are correct.", "A and D are correct."], ans: 0 },
+  { sec: "Multidimensional", num: 3, q: "In the given figure identify the structures marked as A, B, C, D. Select the option that correctly matches them with their function.\nA. Synaptic vesicle – Contains glucose\nB. Pre-synaptic membrane – Synaptic vesicle bind, burst and releases glucose\nC. Post-synaptic membrane – Contains neurotransmitter receptors\nD. Receptors – Binds with the neurotransmitter of synaptic cleft", img: "images/multi_q3.jpg", opts: ["A and B are correct.", "A, B and C are correct.", "C and D are correct.", "B and C are correct."], ans: 2 },
+  { sec: "Multidimensional", num: 4, q: "Following is the figure of a sagittal section of a human brain. Match the labelled parts (A, B, C, D) with the respective statements given and select the correct option.\n(i) Consists of fibre tracts that interconnect left and right hemispheres\n(ii) Secretes a hormone melatonin\n(iii) Alcohol interferes with the function of this part\n(iv) Contains centres which control respiration, cardiovascular reflexes and gastric secretions", img: "images/multi_q4.jpg", opts: ["A-(ii), B-(iii), C-(i), D-(iv)", "A-(iv), B-(i), C-(iii), D-(ii)", "A-(iii), B-(ii), C-(iv), D-(i)", "A-(i), B-(iv), C-(ii), D-(iii)"], ans: 3 },
+  { sec: "Multidimensional", num: 5, q: "Refer to the given figure and select the correct option regarding it.", img: "images/multi_q5.jpg", opts: ["It is unipolar in aging cells.", "It is of only two types; dendritic and axonic.", "It is found in spinal and cranial nerves.", "It possesses multiple nuclei."], ans: 2 },
+  { sec: "Multidimensional", num: 6, q: "In the given figure the action potential is generated at site A. The figure explains transmission of impulse from A to B site. Find the correct figure.", img: "images/multi_q6.jpg", opts: ["Figure (a)", "Figure (b)", "Figure (c)", "Figure (d)"], ans: 3 },
+
+  // ================= EXAM ARCHIVE (1 - 12) =================
+  { sec: "Exam Archive", num: 1, q: "Which part of the brain is responsible for thermoregulation? (NEET)", opts: ["Medulla oblongata", "Cerebrum", "Hypothalamus", "Corpus callosum"], ans: 2 },
+  { sec: "Exam Archive", num: 2, q: "Which of the following structures or regions is incorrectly paired with its functions? (NEET)", opts: ["Medulla oblongata : Controls respiration and cardiovascular reflexes", "Limbic system : Consists of fibre tracts that interconnect different regions of brain and controls movement", "Hypothalamus : Production of releasing hormones and regulation of temperature, hunger and thirst", "Corpus callosum : Band of fibers connecting left and right cerebral hemispheres"], ans: 1 },
+  { sec: "Exam Archive", num: 3, q: "Select the incorrect statement regarding synapses. (NEET)", opts: ["The membranes of presynaptic and postsynaptic neurons are in close proximity in an electrical synapse.", "Electrical current can flow directly from one neuron into the other across the electrical synapse.", "Chemical synapses use neurotransmitters.", "Impulse transmission across a chemical synapse is always faster than that across an electrical synapse."], ans: 3 },
+  { sec: "Exam Archive", num: 4, q: "The human hindbrain comprises three parts, one of which is (NEET)", opts: ["spinal cord", "corpus callosum", "cerebellum", "hypothalamus."], ans: 2 },
+  { sec: "Exam Archive", num: 5, q: "A sagittal section of human brain is shown here. Identify at least two labels from A–D. (NEET)", img: "images/archive_q5.jpg", opts: ["C-Midbrain, D-Cerebellum", "A-Cerebrum, C-Pons", "B-Corpus callosum, D-Medulla", "A-Cerebral hemispheres, B-Cerebellum"], ans: 3 },
+  { sec: "Exam Archive", num: 6, q: "Nissl's bodies are mainly composed of (NEET)", opts: ["proteins and lipids", "DNA and RNA", "nucleic acids and SER", "free ribosomes and RER."], ans: 3 },
+  { sec: "Exam Archive", num: 7, q: "Myelin sheath is produced by (NEET)", opts: ["astrocytes and Schwann cells", "oligodendrocytes and osteoclasts", "osteoclasts and astrocytes", "Schwann cells and oligodendrocytes."], ans: 3 },
+  { sec: "Exam Archive", num: 8, q: "Match List I with List II. (NEET)\nList I:\nA. Pons\nB. Hypothalamus\nC. Medulla\nD. Cerebellum\n\nList II:\nI. Provides additional space for neurons, regulates posture and balance.\nII. Controls respiration and gastric secretions.\nIII. Connects different regions of the brain.\nIV. Neurosecretory cells", opts: ["A-II, B-III, C-I, D-IV", "A-III, B-IV, C-II, D-I", "A-I, B-III, C-II, D-IV", "A-II, B-I, C-III, D-IV"], ans: 1 },
+  { sec: "Exam Archive", num: 9, q: "The primary neurotransmitter at the neuromuscular junction is (NEET)", opts: ["dopamine", "adrenaline", "acetylcholine", "acetaldehyde."], ans: 2 },
+  { sec: "Exam Archive", num: 10, q: "A diagram showing axon terminal and synapse is given. Identify correctly at least two of A - D. (NEET)", img: "images/archive_q10.jpg", opts: ["A - Neurotransmitter, B - Synaptic cleft", "C - Neurotransmitter, D - Ca⁺⁺", "A - Receptor, C - Synaptic vesicles", "B - Synaptic connection, D - K⁺"], ans: 2 },
+  { sec: "Exam Archive", num: 11, q: "Assertion: All motor neurons are efferent neurons.\nReason: Motor neurons conduct nerve impulses from the spinal cord to the brain. (AIIMS)", opts: ["Both assertion and reason are true and reason is the correct explanation of assertion.", "Both assertion and reason are true but reason is not the correct explanation of assertion.", "Assertion is true but reason is false.", "Both assertion and reason are false."], ans: 2 },
+  { sec: "Exam Archive", num: 12, q: "The parts of human brain that helps in regulation of sexual behaviour, expression of excitement, pleasure, rage, fear, etc., are (NEET)", opts: ["brain stem and epithalamus", "corpus callosum and thalamus", "limbic system and hypothalamus", "corpora quadrigemina and hippocampus."], ans: 2 }
+];
+
+let userAnswers = new Array(QUESTIONS.length).fill(null);
+let submitted = false;
+let currentSection = "All";
+let startTime = Date.now();
+
+const SECTIONS = ["All", "Images Only", ...new Set(QUESTIONS.map(q => q.sec))];
+
+function renderTabs() {
+  const tabs = document.getElementById("sectionTabs");
+  tabs.innerHTML = SECTIONS.map(sec => `
+    <button class="btn-outline ${currentSection === sec ? 'active' : ''}" onclick="setSection('${sec}')">${sec}</button>
+  `).join("");
+}
+
+function setSection(sec) {
+  currentSection = sec;
+  renderTabs();
+  renderQuestions();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderQuestions() {
+  const container = document.getElementById("questionsContainer");
+  const filtered = QUESTIONS.map((q, idx) => ({ ...q, idx })).filter(q => {
+    if (currentSection === "All") return true;
+    if (currentSection === "Images Only") return Boolean(q.img);
+    return q.sec === currentSection;
+  });
+
+  document.getElementById("sectionInfo").textContent = `Showing ${filtered.length} question(s) • ${currentSection}`;
+
+  container.innerHTML = filtered.map(item => {
+    const chosen = userAnswers[item.idx];
+    const letters = ["A", "B", "C", "D"];
+    let statusHtml = "";
+    if (submitted) {
+      if (chosen === null) statusHtml = `<span class="status-tag" style="color:var(--muted)">Unattempted (0)</span>`;
+      else if (chosen === item.ans) statusHtml = `<span class="status-tag" style="color:var(--green)">Correct (+4)</span>`;
+      else statusHtml = `<span class="status-tag" style="color:var(--red)">Wrong (-1) • Ans: (${letters[item.ans].toLowerCase()})</span>`;
+    }
+
+    return `
+      <div class="q-card" id="qcard-${item.idx}">
+        <div class="q-header">
+          <span class="badge">${item.sec} • Q${item.num}</span>
+          <span>#${item.idx + 1} of ${QUESTIONS.length}</span>
+        </div>
+        ${item.passage ? `<div class="passage-box">${item.passage}</div>` : ""}
+        <div class="q-text">${item.q}</div>
+        ${item.img ? `
+          <div class="img-wrap">
+            <img src="${item.img}" alt="Diagram for ${item.sec} Q${item.num}"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+            <div class="img-missing" style="display:none;">
+              📷 Diagram needed: Upload cropped image as <strong>${item.img}</strong> in your GitHub repo.
+            </div>
+          </div>
+        ` : ""}
+        <div class="options">
+          ${item.opts.map((opt, oIdx) => {
+            let cls = "opt";
+            if (!submitted && chosen === oIdx) cls += " selected";
+            if (submitted) {
+              if (oIdx === item.ans) cls += " correct";
+              else if (chosen === oIdx && chosen !== item.ans) cls += " wrong";
+            }
+            return `
+              <div class="${cls}" onclick="selectOption(${item.idx}, ${oIdx})">
+                <div class="opt-letter">${letters[oIdx]}</div>
+                <div>${opt}</div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+        <div class="q-actions">
+          ${statusHtml}
+          ${!submitted && chosen !== null ? `<button class="btn-outline" style="margin-left:auto; font-size:0.75rem;" onclick="clearOption(${item.idx})">Clear</button>` : ""}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  updateProgress();
+}
+
+function selectOption(qIdx, oIdx) {
+  if (submitted) return;
+  userAnswers[qIdx] = oIdx;
+  renderQuestions();
+}
+
+function clearOption(qIdx) {
+  if (submitted) return;
+  userAnswers[qIdx] = null;
+  renderQuestions();
+}
+
+function updateProgress() {
+  const count = userAnswers.filter(a => a !== null).length;
+  document.getElementById("progText").textContent = `${count} / ${QUESTIONS.length} Answered`;
+}
+
+function openPalette() {
+  const grid = document.getElementById("paletteGrid");
+  grid.innerHTML = QUESTIONS.map((q, idx) => {
+    let cls = "pal-btn";
+    if (!submitted && userAnswers[idx] !== null) cls += " ans";
+    if (submitted) {
+      if (userAnswers[idx] === q.ans) cls += " res-ok";
+      else if (userAnswers[idx] !== null) cls += " res-no";
+    }
+    return `<button class="${cls}" onclick="jumpTo(${idx})">${idx + 1}</button>`;
+  }).join("");
+  document.getElementById("paletteModal").classList.add("open");
+}
+
+function closePalette() { document.getElementById("paletteModal").classList.remove("open"); }
+
+function jumpTo(idx) {
+  closePalette();
+  if (currentSection !== "All") {
+    currentSection = "All";
+    renderTabs();
+    renderQuestions();
+  }
+  const el = document.getElementById(`qcard-${idx}`);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function submitTest() {
+  if (!submitted) {
+    const answered = userAnswers.filter(a => a !== null).length;
+    if (!confirm(`Submit test now? You have answered ${answered} out of ${QUESTIONS.length} questions.`)) return;
+    submitted = true;
+    document.getElementById("submitBtn").textContent = "Scorecard";
+    renderQuestions();
+  }
+
+  let correct = 0, wrong = 0, unatt = 0;
+  QUESTIONS.forEach((q, idx) => {
+    if (userAnswers[idx] === null) unatt++;
+    else if (userAnswers[idx] === q.ans) correct++;
+    else wrong++;
+  });
+
+  const score = correct * 4 - wrong;
+  const maxScore = QUESTIONS.length * 4;
+  const acc = (correct + wrong) > 0 ? Math.round((correct / (correct + wrong)) * 100) : 0;
+  const secs = Math.floor((Date.now() - startTime) / 1000);
+
+  document.getElementById("scTotal").textContent = `${score} / ${maxScore}`;
+  document.getElementById("scAcc").textContent = `${acc}%`;
+  document.getElementById("scCorrect").textContent = correct;
+  document.getElementById("scWrong").textContent = wrong;
+  document.getElementById("scUnatt").textContent = unatt;
+  document.getElementById("scTime").textContent = `${Math.floor(secs / 60)}m ${secs % 60}s`;
+  document.getElementById("scoreModal").classList.add("open");
+}
+
+function closeScore() { document.getElementById("scoreModal").classList.remove("open"); }
+
+function resetTest() {
+  if (!confirm("Reset all answers and start over?")) return;
+  userAnswers = new Array(QUESTIONS.length).fill(null);
+  submitted = false;
+  startTime = Date.now();
+  document.getElementById("submitBtn").textContent = "Submit";
+  closeScore();
+  renderQuestions();
+}
+
+renderTabs();
+renderQuestions();
+</script>
+</body>
+</html>
